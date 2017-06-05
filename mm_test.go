@@ -30,6 +30,43 @@ func generateMatrix() (A, B, C [][]float64) {
 	return
 }
 
+// isSame - function for check algorithm of matrix multiplication
+// compare result with simple and slow classic algortithm
+func isSame(f func(a, b, c *[][]float64)) bool {
+	A, B, C := generateMatrix()
+	f(&A, &B, &C)
+	n := len(A)
+	for i := 0; i < n; i++ {
+		for j := 0; j < n; j++ {
+			sum := 0.0
+			for k := 0; k < n; k++ {
+				sum += A[i][k] * B[k][j]
+			}
+			if sum != C[i][j] {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func TestSimple(t *testing.T) {
+	if !isSame(mmSimple) {
+		t.Errorf("Algorithm is not correct")
+	}
+}
+
+func mmSimple(A, B, C *[][]float64) {
+	n := len(*A)
+	for i := 0; i < n; i++ {
+		for j := 0; j < n; j++ {
+			for k := 0; k < n; k++ {
+				(*C)[i][j] += (*A)[i][k] * (*B)[k][j]
+			}
+		}
+	}
+}
+
 func BenchmarkSimple(b *testing.B) {
 	// Stop the timer for avoid add time of generate matrix
 	b.StopTimer()
@@ -46,7 +83,7 @@ func BenchmarkSimple(b *testing.B) {
 		for i := 0; i < n; i++ {
 			for j := 0; j < n; j++ {
 				for k := 0; k < n; k++ {
-					C[i][j] = A[i][k] * B[k][j]
+					C[i][j] += A[i][k] * B[k][j]
 				}
 			}
 		}

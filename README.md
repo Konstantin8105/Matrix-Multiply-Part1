@@ -5,6 +5,7 @@ Let`s take a few input data:
 
 - Multiplication matrix: [A]*[B] = [C], where [A], [B], [C] - square matrix
 - Size of each matrix is 1024 x 1024
+- Type of values: **float64**
 - Matrix is dense. So, zero's values is very small 
 - Programming language: [Go](https://golang.org/)
 - Laptop precossor for experiments: [Intel(R) Core(TM) i5-3230M CPU @2.6 GHz](https://ark.intel.com/ru/products/72164/Intel-Core-i5-3230M-Processor-3M-Cache-up-to-3_20-GHz-rPGA)
@@ -130,7 +131,7 @@ func BenchmarkSimple(b *testing.B) {
 		for i := 0; i < n; i++ {
 			for j := 0; j < n; j++ {
 				for k := 0; k < n; k++ {
-					C[i][j] = A[i][k] * B[k][j]
+					C[i][j] += A[i][k] * B[k][j]
 				}
 			}
 		}
@@ -141,23 +142,68 @@ func BenchmarkSimple(b *testing.B) {
 
 For start benchmark test we put in command line next text:
 ```command line
-go test -bench=. -benchtime=1m -benchmem
+go test -v -bench=. -benchtime=1m -benchmem
 ```
 Flags:
+>
+> -v             - show all output
+>
 > -bench=.       - start all benchmark
 >
-> -benchtime=1m  - time of each benchmark
+> -benchtime=1m  - minimal time of benchmark, 1m = 1 minute
 >
 > -benchmem      - show amount of memory allocations
 
 Our first benchmark result:
 ```command line
-BenchmarkSimple-4       5	15305107558 ns/op	       0 B/op	       0 allocs/op
+BenchmarkSimple-4   	       5	15801479324 ns/op	       0 B/op	       0 allocs/op
+```
+So, we see next: our test executed 5 times and ~15.8 sec for each multiplication and we don't allocation addition memory.
+
+For future algorithm optimization, we have to refactoring the code for avoid mistake and minimaze the time for benchmark research.
+
+Firstly, we create a simple(slow) check function for compare results all new algorithm. 
+```golang
+// isSame - function for check algorithm of matrix multiplication
+// compare result with simple and slow classic algortithm 
+func isSame(f func(a, b, c *[][]float64)) bool {
+	A, B, C := generateMatrix()
+	f(&A, &B, &C)
+	n := len(A)
+	for i := 0; i < n; i++ {
+		for j := 0; j < n; j++ {
+			sum := 0.0
+			for k := 0; k < n; k++ {
+				sum += A[i][k] * B[k][j]
+			}
+			if sum != C[i][j] {
+				return false
+			}
+		}
+	}
+	return true
+}
 ```
 
 
 
-TODO
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+------
+#TODO
 
 add more tests
 add test for one single matrix
