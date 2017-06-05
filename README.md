@@ -17,7 +17,9 @@ You can see the theory in [Wikipedia](https://en.wikipedia.org/wiki/Matrix_multi
 Shortly:
 Matrix is table of values, for example:
 
+```
 [ 2 3 ]
 [ 4 5 ]
+```
 
 Now, you see the square matrix with 2 rows and 2 columns.
