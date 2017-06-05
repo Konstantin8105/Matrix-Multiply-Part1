@@ -4,7 +4,7 @@ At the base of article is performance research of matrix multiplication.
 Let`s take a few input data:
 
 - Multiplication matrix: [A]*[B] = [C], where [A], [B], [C] - square matrix
-- Size of each matrix is 2048 x 2048
+- Size of each matrix is 1024 x 1024
 - Matrix is dense. So, zero's values is very small 
 - Programming language: [Go](https://golang.org/)
 - Laptop precossor for experiments: [Intel(R) Core(TM) i5-3230M CPU @2.6 GHz](https://ark.intel.com/ru/products/72164/Intel-Core-i5-3230M-Processor-3M-Cache-up-to-3_20-GHz-rPGA)
@@ -69,7 +69,6 @@ Code in project [go.matrix](https://github.com/skelterjohn/go.matrix/blob/daa595
 func ParallelProduct(A, B MatrixRO) (C *DenseMatrix) {
 	...
 	C = Zeros(A.Rows(), B.Cols())
-
 	in := make(chan int)
 	quit := make(chan bool)
 
@@ -93,19 +92,15 @@ func ParallelProduct(A, B MatrixRO) (C *DenseMatrix) {
 	}
 
 	threads := 2                                      // Is it looks strange, because I can more then 2 processors
-
 	for i := 0; i < threads; i++ {
 		go dotRowCol()
 	}
-
 	for i := 0; i < A.Rows(); i++ {
 		in <- i
 	}
-
 	for i := 0; i < threads; i++ {
 		quit <- true
 	}
-
 	return
 }
 ```
@@ -115,6 +110,50 @@ Comments:
 - We see using array for intermadiante results. Now, it is not clear - it is good or not. We will see.
 
 # Stop theory, more practic, more benchmarks
+
+Now, we are ready for experiments.
+At the first time, we look on first benchmark in detail for understood each line of code.
+```golang
+func BenchmarkSimple(b *testing.B) {
+	// Stop the timer for avoid add time of generate matrix
+	b.StopTimer()
+	A, B, C := generateMatrix()
+	// Now, we are ready for start timer our benchmark
+	b.StartTimer()
+	// We cannot control for amount of benchmark test,
+	// but it is not important
+	for t := 0; t < b.N; t++ {
+		// Start of algorithm
+		// We know - the size of matrix is same for all
+		// matrix. So, we can only one variable of size
+		n := len(A)
+		for i := 0; i < n; i++ {
+			for j := 0; j < n; j++ {
+				for k := 0; k < n; k++ {
+					C[i][j] = A[i][k] * B[k][j]
+				}
+			}
+		}
+		// Finish of algorithm
+	}
+}
+```
+
+For start benchmark test we put in command line next text:
+```command line
+go test -bench=. -benchtime=1m -benchmem
+```
+Flags:
+> -bench=.       - start all benchmark
+>
+> -benchtime=1m  - time of each benchmark
+>
+> -benchmem      - show amount of memory allocations
+
+Our first benchmark result:
+```command line
+BenchmarkSimple-4       5	15305107558 ns/op	       0 B/op	       0 allocs/op
+```
 
 
 
