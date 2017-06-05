@@ -162,7 +162,7 @@ So, we see next: our test executed 5 times and ~22.1 sec for each multiplication
 
 For future algorithm optimization, we have to refactoring the code for avoid mistake and minimaze the time for benchmark research.
 
-Firstly, we create a simple(slow) check function for compare results all new algorithm. 
+Firstly, we create a simple(slow) check function for compare results all new algorithms. 
 ```golang
 // isSame - function for check algorithm of matrix multiplication
 // compare result with simple and slow classic algortithm 
@@ -184,7 +184,7 @@ func isSame(f func(a, b, c *[][]float64)) bool {
 	return true
 }
 ```
-Put out "simple, first" algorithm inside function outside of test. Like that:
+Put our "simple, first" algorithm inside function outside of test. Like that:
 ```golang
 func mmSimple(A, B, C *[][]float64) {
 	n := len(*A)
