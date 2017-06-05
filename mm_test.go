@@ -79,14 +79,45 @@ func BenchmarkSimple(b *testing.B) {
 		// Start of algorithm
 		// We know - the size of matrix is same for all
 		// matrix. So, we can only one variable of size
-		n := len(A)
-		for i := 0; i < n; i++ {
-			for j := 0; j < n; j++ {
-				for k := 0; k < n; k++ {
-					C[i][j] += A[i][k] * B[k][j]
-				}
+		mmSimple(&A, &B, &C)
+		// Finish of algorithm
+	}
+}
+
+func TestBuffer1(t *testing.T) {
+	if !isSame(mmSimple) {
+		t.Errorf("Algorithm is not correct")
+	}
+}
+
+func BenchmarkBuffer1(b *testing.B) {
+	// Stop the timer for avoid add time of generate matrix
+	b.StopTimer()
+	A, B, C := generateMatrix()
+	// Now, we are ready for start timer our benchmark
+	b.StartTimer()
+	// We cannot control for amount of benchmark test,
+	// but it is not important
+	for t := 0; t < b.N; t++ {
+		// Start of algorithm
+		// We know - the size of matrix is same for all
+		// matrix. So, we can only one variable of size
+		mmBuffer1(&A, &B, &C)
+		// Finish of algorithm
+	}
+}
+
+func mmBuffer1(A, B, C *[][]float64) {
+	n := len(*A)
+	buffer := make([]float64, n, n)
+	for i := 0; i < n; i++ {
+		for j := 0; j < n; j++ {
+			buffer[j] = (*A)[i][j]
+		}
+		for j := 0; j < n; j++ {
+			for k := 0; k < n; k++ {
+				(*C)[i][j] += buffer[k] * (*B)[k][j]
 			}
 		}
-		// Finish of algorithm
 	}
 }

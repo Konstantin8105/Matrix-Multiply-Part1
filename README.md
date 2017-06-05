@@ -184,9 +184,64 @@ func isSame(f func(a, b, c *[][]float64)) bool {
 	return true
 }
 ```
+Put out "simple, first" algorithm inside function outside of test. Like that:
+```golang
+func mmSimple(A, B, C *[][]float64) {
+	n := len(*A)
+	for i := 0; i < n; i++ {
+		for j := 0; j < n; j++ {
+			for k := 0; k < n; k++ {
+				(*C)[i][j] += (*A)[i][k] * (*B)[k][j]
+			}
+		}
+	}
+}
+```
+We see the simple, clear function with 3 input, output matrix. 
+Prefix of function name `mm` mean - "Matrix Multiplication".
 
+Our test look very beatiful:
+```golang
+func TestSimple(t *testing.T) {
+	if !isSame(mmSimple) {
+		t.Errorf("Algorithm is not correct")
+	}
+}
+```
+Our benchmark look is same clear:
+```golang
+func BenchmarkSimple(b *testing.B) {
+	// Stop the timer for avoid add time of generate matrix
+	b.StopTimer()
+	A, B, C := generateMatrix()
+	// Now, we are ready for start timer our benchmark
+	b.StartTimer()
+	// We cannot control for amount of benchmark test,
+	// but it is not important
+	for t := 0; t < b.N; t++ {
+		// Start of algorithm
+		// We know - the size of matrix is same for all
+		// matrix. So, we can only one variable of size
+		mmSimple(&A, &B, &C)
+		// Finish of algorithm
+	}
+}
+```
 
+In next steps, I will hide test and benchmark code, but show only algorithm code.
+It will be simple for concentrate on algorithm code.
 
+What we see in function `mmSimple` for optimization?
+> We can create a buffer of row of matrix A.
+>
+> The reason: we prepare memory and if all is Ok, we will
+> put memory in CPU cache.
+> One more attention: if all out data for calculation inside 
+> CPU cache, then that calculation will be calculated 
+> fast.
+>
+> At the next time, we will see the way for preliminary 
+> garantee putting memory in CPU cache.
 
 
 
