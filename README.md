@@ -6,7 +6,7 @@ Let`s take a few input data:
 - Multiplication matrix: [A]*[B] = [C], where [A], [B], [C] - square matrix
 - Size of each matrix is 1024 x 1024
 - Type of values: **float64**
-- Matrix is dense. So, zero's values is very small 
+- Matrix is dense. The algorithms for sparse matrix is outside of that article.
 - Programming language: [Go](https://golang.org/)
 - Laptop precossor for experiments: [Intel(R) Core(TM) i5-3230M CPU @2.6 GHz](https://ark.intel.com/ru/products/72164/Intel-Core-i5-3230M-Processor-3M-Cache-up-to-3_20-GHz-rPGA)
 > The number of CPU cores : 2
@@ -156,9 +156,9 @@ Flags:
 
 Our first benchmark result:
 ```command line
-BenchmarkSimple-4   	       5	15801479324 ns/op	       0 B/op	       0 allocs/op
+BenchmarkSimple-4   	       5	22155569004ns/op	       0 B/op	       0 allocs/op
 ```
-So, we see next: our test executed 5 times and ~15.8 sec for each multiplication and we don't allocation addition memory.
+So, we see next: our test executed 5 times and ~22.1 sec for each multiplication and we don't allocation addition memory.
 
 For future algorithm optimization, we have to refactoring the code for avoid mistake and minimaze the time for benchmark research.
 
@@ -238,13 +238,58 @@ What we see in function `mmSimple` for optimization?
 > put memory in CPU cache.
 > One more attention: if all out data for calculation inside 
 > CPU cache, then that calculation will be calculated 
-> fast.
+> fast, because speed of memory is more fast then RAM.
 >
 > At the next time, we will see the way for preliminary 
 > garantee putting memory in CPU cache.
 
+So, our code is:
+```golang
+// mmBuffer1 - added one buffer
+func mmBuffer1(A, B, C *[][]float64) {
+	n := len(*A)
+	buffer := make([]float64, n, n) // Create buffer
+	for i := 0; i < n; i++ {
+		for j := 0; j < n; j++ {
+			buffer[j] = (*A)[i][j] // Put in buffer row of matrix [A]
+		}
+		for j := 0; j < n; j++ {
+			for k := 0; k < n; k++ {
+				(*C)[i][j] += buffer[k] * (*B)[k][j]
+			}
+		}
+	}
+}
+```
 
+We have to change the command line, because now we check 2 algorithm at the one time.
+```command line
+go test -v -bench=. -benchtime=3m -benchmem
+```
 
+Result is:
+```command line
+=== RUN   TestSimple
+--- PASS: TestSimple (36.08s)
+=== RUN   TestBuffer1
+--- PASS: TestBuffer1 (35.56s)
+BenchmarkSimple-4    	      10	22155569004 ns/op	       8 B/op	       0 allocs/op
+BenchmarkBuffer1-4   	      10	18786789917 ns/op	    8377 B/op	       1 allocs/op
+PASS
+ok  	github.com/Konstantin8105/MatrixMultiply	522.489s
+```
+What we see?
+1.	Both algorithm is good(haven`t bug)
+2.	Algorithm with buffer little bit faster at 22.1/18.7 = 1.18 times (18%)
+
+Like we see in example of JAMA library, the putting buffer is good way.
+But it is not a clear:
+* Why?
+* Why only one buffer?
+* Can we create the algorithm more faster?
+* Can we create a parallel algorithm?
+
+Let`s start to create new experiments.
 
 
 

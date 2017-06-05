@@ -107,12 +107,13 @@ func BenchmarkBuffer1(b *testing.B) {
 	}
 }
 
+// mmBuffer1 - added one buffer
 func mmBuffer1(A, B, C *[][]float64) {
 	n := len(*A)
-	buffer := make([]float64, n, n)
+	buffer := make([]float64, n, n) // Create buffer
 	for i := 0; i < n; i++ {
 		for j := 0; j < n; j++ {
-			buffer[j] = (*A)[i][j]
+			buffer[j] = (*A)[i][j] // Put in buffer row of matrix [A]
 		}
 		for j := 0; j < n; j++ {
 			for k := 0; k < n; k++ {
