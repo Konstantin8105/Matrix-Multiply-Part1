@@ -22,4 +22,10 @@ Matrix is table of values, for example:
 [ 4 5 ]
 ```
 
-Now, you see the square matrix with 2 rows and 2 columns.
+Now, you see the square matrix with 2 rows and 2 columns. Like you understood, values can be any.
+So, a little example for matrix multiplication looks like that:
+
+```
+[ 2 3 ]  *  [ 1 6 ]  =  [ 2*1+3*9 2*6+3*8 ] =  [ 29 36 ]
+[ 4 5 ]     [ 9 8 ]     [ 4*1+5*9 4*6+5*8 ]    [ 49 64 ]
+```
