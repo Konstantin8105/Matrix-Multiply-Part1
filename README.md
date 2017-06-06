@@ -294,11 +294,105 @@ But it is not a clear:
 
 Let's start to create new experiments.
 
+# More buffers, more faster??? And yes, and not.
 
+Create a multiplication matrix algorithm with 2 buffers.
+We can that algorithm, only if size of matrix is multiple by 2.
+```go
+// mmBuffer2 - added two buffer
+func mmBuffer2(A, B, C *[][]float64) {
+	n := len(*A)
+	// Create buffers
+	buffer0 := make([]float64, n, n)
+	buffer1 := make([]float64, n, n)
+	// Now, we use (i+=2), for avoid
+	// dublicate calculations
+	for i := 0; i < n; i += 2 {
+		for j := 0; j < n; j++ {
+			// Put in buffer row of matrix [A]
+			buffer0[j] = (*A)[i+0][j]
+			buffer1[j] = (*A)[i+1][j]
+		}
+		for j := 0; j < n; j++ {
+			for k := 0; k < n; k++ {
+				(*C)[i+0][j] += buffer0[k] * (*B)[k][j]
+				(*C)[i+1][j] += buffer1[k] * (*B)[k][j]
+			}
+		}
+	}
+}
+```
+Create a multiplication matrix algorithm with 4 buffers.
+We can that algorithm, only if size of matrix is multiple by 4.
+```go
+// mmBuffer4 - added 4 buffers
+func mmBuffer4(A, B, C *[][]float64) {
+	n := len(*A)
+	// Create buffers
+	buffer0 := make([]float64, n, n)
+	buffer1 := make([]float64, n, n)
+	buffer2 := make([]float64, n, n)
+	buffer3 := make([]float64, n, n)
+	// Now, we use (i+=4), for avoid
+	// dublicate calculations
+	for i := 0; i < n; i += 4 {
+		for j := 0; j < n; j++ {
+			// Put in buffer row of matrix [A]
+			buffer0[j] = (*A)[i+0][j]
+			buffer1[j] = (*A)[i+1][j]
+			buffer2[j] = (*A)[i+2][j]
+			buffer3[j] = (*A)[i+3][j]
+		}
+		for j := 0; j < n; j++ {
+			for k := 0; k < n; k++ {
+				(*C)[i+0][j] += buffer0[k] * (*B)[k][j]
+				(*C)[i+1][j] += buffer1[k] * (*B)[k][j]
+				(*C)[i+2][j] += buffer2[k] * (*B)[k][j]
+				(*C)[i+3][j] += buffer3[k] * (*B)[k][j]
+			}
+		}
+	}
+}
+```
 
+Creating the multiplication matrix algorithm with 8, 16, 32, 64 buffers are not show, but you can see in code file.
 
+Results:
+```command line
+=== RUN   TestSimple
+--- PASS: TestSimple (23.48s)
+=== RUN   TestBuffer1
+--- PASS: TestBuffer1 (24.23s)
+=== RUN   TestBuffer2
+--- PASS: TestBuffer2 (18.21s)
+=== RUN   TestBuffer4
+--- PASS: TestBuffer4 (17.93s)
+=== RUN   TestBuffer8
+--- PASS: TestBuffer8 (16.60s)
+=== RUN   TestBuffer16
+--- PASS: TestBuffer16 (16.27s)
+=== RUN   TestBuffer32
+--- PASS: TestBuffer32 (15.96s)
+=== RUN   TestBuffer64
+--- PASS: TestBuffer64 (17.10s)
+BenchmarkSimple-8                      1        12527000000 ns/op          0 B/op          0 allocs/op
+BenchmarkBuffer1-8                     1        11497000000 ns/op       8192 B/op          1 allocs/op
+BenchmarkBuffer2-8                     1        8480000000 ns/op       16384 B/op          2 allocs/op
+BenchmarkBuffer4-8                     1        6039000000 ns/op       32768 B/op          4 allocs/op
+BenchmarkBuffer8-8                     1        5945000000 ns/op       65536 B/op          8 allocs/op
+BenchmarkBuffer16-8                    1        5959000000 ns/op      131072 B/op         16 allocs/op
+BenchmarkBuffer32-8                    1        6484512700 ns/op      262144 B/op         32 allocs/op
+BenchmarkBuffer64-8                    1        6637663700 ns/op      524288 B/op         64 allocs/op
+PASS
+ok      github.com/Konstantin8105/MatrixMultiply        225.049s
+```
+Like we see, we will have the optimal solution between 4 and 64 buffers. May be [42](https://en.wikipedia.org/wiki/The_Hitchhiker%27s_Guide_to_the_Galaxy).
 
+And now our algorithm is faster at 12.5/6.03 = 2.07 times
 
+We still use only one core of processor. So, let's create a parallel algorithm.
+
+# More buffers + more cores = more faster.
 
 
 
