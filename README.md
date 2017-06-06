@@ -474,7 +474,7 @@ Like we see, we will have the optimal solution between 4 and 64 buffers. May be 
 
 Now our algorithm is faster at 12.5/1.72 = 7.3 times
 
-# Try minimaze inialiaze variable
+# Try minimaze inialiazations of variables
 
 At this part of article, we try to optimize algorithm.
 We add new variable for summ in step for calculate the matrix [C] and first initialize outside of loop.
@@ -557,10 +557,33 @@ BenchmarkParallelBufferVarOut64-8              2         865586550 ns/op     419
 PASS
 ok      command-line-arguments  79.740s
 ```
-
+The optimal of amount buffers is between 16 ... 64 in our task.
 Now our algorithm is faster at 12.5/0.6 = 20.8 times
 
 # Create preliminary optimization formula
+
+Let's amount all results and create some preliiminary model of calculation.
+```ascii picture
++---------------------------+  +-------------------+
+| CPU                       |  | RAM               |
+|  +--------+  +---------+  |  | memory            |
+|  |  Core  |==| CPU     |  |  |                   |
+|  +--------+  | memory  |  |  |                   |
+|  +--------+  |         |  |  |                   |
+|  |  Core  |==|         |  |  |                   |
+|  +--------+  |         |  |  |                   |
+|  +--------+  |         |  |  |                   |
+|  |  Core  |==|         |  |  |                   |
+|  +--------+  |         |  |  |                   |
+|  +--------+  |         |  |  |                   |
+|  |  Core  |==|         |  |  |                   |
+|  +--------+  +---------+  |  |                   |
++---------------------------+  +-------------------+
+
+```
+
+
+# Rules
 
 ------
 #TODO
