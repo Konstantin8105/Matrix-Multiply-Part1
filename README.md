@@ -3,7 +3,7 @@
 At the base of article is performance research of matrix multiplication.
 Let's take a few input data:
 
-- Multiplication matrix: [A]*[B] = [C], where [A], [B], [C] - square matrix
+- Multiplication matrix: [A] * [B] = [C], where [A], [B], [C] - square matrix
 - Size of each matrix is 1024 x 1024
 - Type of values: **float64**
 - Matrix is dense. The algorithms for sparse matrix is outside of that article.
@@ -359,36 +359,33 @@ Creating the multiplication matrix algorithm with 8, 16, 32, 64 buffers are not 
 
 Results:
 ```command line
-=== RUN   TestSimple
---- PASS: TestSimple (23.48s)
+
 === RUN   TestBuffer1
---- PASS: TestBuffer1 (24.23s)
+--- PASS: TestBuffer1 (22.16s)
 === RUN   TestBuffer2
---- PASS: TestBuffer2 (18.21s)
+--- PASS: TestBuffer2 (20.69s)
 === RUN   TestBuffer4
---- PASS: TestBuffer4 (17.93s)
+--- PASS: TestBuffer4 (16.06s)
 === RUN   TestBuffer8
---- PASS: TestBuffer8 (16.60s)
+--- PASS: TestBuffer8 (14.71s)
 === RUN   TestBuffer16
---- PASS: TestBuffer16 (16.27s)
+--- PASS: TestBuffer16 (13.98s)
 === RUN   TestBuffer32
---- PASS: TestBuffer32 (15.96s)
+--- PASS: TestBuffer32 (10.66s)
 === RUN   TestBuffer64
---- PASS: TestBuffer64 (17.10s)
-BenchmarkSimple-8                      1        12527000000 ns/op          0 B/op          0 allocs/op
-BenchmarkBuffer1-8                     1        11497000000 ns/op       8192 B/op          1 allocs/op
-BenchmarkBuffer2-8                     1        8480000000 ns/op       16384 B/op          2 allocs/op
-BenchmarkBuffer4-8                     1        6039000000 ns/op       32768 B/op          4 allocs/op
-BenchmarkBuffer8-8                     1        5945000000 ns/op       65536 B/op          8 allocs/op
-BenchmarkBuffer16-8                    1        5959000000 ns/op      131072 B/op         16 allocs/op
-BenchmarkBuffer32-8                    1        6484512700 ns/op      262144 B/op         32 allocs/op
-BenchmarkBuffer64-8                    1        6637663700 ns/op      524288 B/op         64 allocs/op
+--- PASS: TestBuffer64 (11.08s)
+BenchmarkBuffer1-4                  	       1	25774664502 ns/op	    8192 B/op	       1 allocs/op
+BenchmarkBuffer2-4                  	       1	19334469447 ns/op	   16384 B/op	       2 allocs/op
+BenchmarkBuffer4-4                  	       1	14938243077 ns/op	   32768 B/op	       4 allocs/op
+BenchmarkBuffer8-4                  	       1	12447383207 ns/op	   65536 B/op	       8 allocs/op
+BenchmarkBuffer16-4                 	       1	11231806529 ns/op	  131072 B/op	      16 allocs/op
+BenchmarkBuffer32-4                 	       1	9488617339 ns/op	  262144 B/op	      32 allocs/op
+BenchmarkBuffer64-4                 	       1	9177935520 ns/op	  524288 B/op	      64 allocs/op
 PASS
-ok      github.com/Konstantin8105/MatrixMultiply        225.049s
 ```
 Like we see, we will have the optimal solution between 4 and 64 buffers. May be [42](https://en.wikipedia.org/wiki/The_Hitchhiker%27s_Guide_to_the_Galaxy) - we have to continue the analyzing.
 
-And now our algorithm is faster at 12.5/6.03 = 2.07 times
+And now our algorithm is faster at 22.2/9.17 = 2.42 times
 
 We still use only one core of processor. So, let's create a parallel algorithm.
 
@@ -448,31 +445,30 @@ func mmParallelBuffer2(A, B, C *[][]float64) {
 If you feel the pain of waiting the results of benchmarks before, then now it is lost, because now it much better performance. Let's look on results of parallel algorithm with buffers.
 
 ```command line
-go test -v -bench=. -benchmem  bufferParallel_test.go utils_test.go
 === RUN   TestParallelBuffer2
---- PASS: TestParallelBuffer2 (12.25s)
+--- PASS: TestParallelBuffer2 (14.96s)
 === RUN   TestParallelBuffer4
---- PASS: TestParallelBuffer4 (12.26s)
+--- PASS: TestParallelBuffer4 (13.56s)
 === RUN   TestParallelBuffer8
---- PASS: TestParallelBuffer8 (12.03s)
+--- PASS: TestParallelBuffer8 (11.51s)
 === RUN   TestParallelBuffer16
---- PASS: TestParallelBuffer16 (11.94s)
+--- PASS: TestParallelBuffer16 (9.28s)
 === RUN   TestParallelBuffer32
---- PASS: TestParallelBuffer32 (11.78s)
+--- PASS: TestParallelBuffer32 (8.76s)
 === RUN   TestParallelBuffer64
---- PASS: TestParallelBuffer64 (12.53s)
-BenchmarkParallelBuffer2-8             1        2156000000 ns/op      133328 B/op         25 allocs/op
-BenchmarkParallelBuffer4-8             1        2145000000 ns/op      264672 B/op         40 allocs/op
-BenchmarkParallelBuffer8-8             1        1778000000 ns/op      528944 B/op         75 allocs/op
-BenchmarkParallelBuffer16-8            1        1725000000 ns/op     1051184 B/op        137 allocs/op
-BenchmarkParallelBuffer32-8            1        1722000000 ns/op     2100176 B/op        266 allocs/op
-BenchmarkParallelBuffer64-8            1        1899000000 ns/op     4194832 B/op        516 allocs/op
+--- PASS: TestParallelBuffer64 (9.30s)
+BenchmarkParallelBuffer2-4    	       1	8776396393 ns/op	   67568 B/op	      16 allocs/op
+BenchmarkParallelBuffer4-4    	       1	7070533991 ns/op	  132352 B/op	      21 allocs/op
+BenchmarkParallelBuffer8-4    	       1	5332511460 ns/op	  263504 B/op	      38 allocs/op
+BenchmarkParallelBuffer16-4   	       1	6616536928 ns/op	  525648 B/op	      70 allocs/op
+BenchmarkParallelBuffer32-4   	       1	4270706396 ns/op	 1049584 B/op	     134 allocs/op
+BenchmarkParallelBuffer64-4   	       1	4881902735 ns/op	 2098512 B/op	     262 allocs/op
 PASS
-ok      command-line-arguments  84.782s
+ok  	command-line-arguments	104.808s
 ```
 Like we see, we will have the optimal solution between 4 and 64 buffers. May be [42](https://en.wikipedia.org/wiki/The_Hitchhiker%27s_Guide_to_the_Galaxy) - we have to continue the analyzing.
 
-Now our algorithm is faster at 12.5/1.72 = 7.3 times
+Now our algorithm is faster at 22.2/4.27 = 5.22 times
 
 # Try minimaze inialiazations of variables
 
@@ -535,30 +531,28 @@ Changed 7 lines of code and added comment : `<---- Mark`
 
 Look on results:
 ```command line
-Z:\GoPath\src\github.com\Konstantin8105\MatrixMultiply>go test -v -bench=. -benchmem  bufferParallelVariableOutside_test.go utils_test.go
 === RUN   TestParallelBufferVarOut2
---- PASS: TestParallelBufferVarOut2 (13.12s)
+--- PASS: TestParallelBufferVarOut2 (6.84s)
 === RUN   TestParallelBufferVarOut4
---- PASS: TestParallelBufferVarOut4 (11.10s)
+--- PASS: TestParallelBufferVarOut4 (6.22s)
 === RUN   TestParallelBufferVarOut8
---- PASS: TestParallelBufferVarOut8 (10.63s)
+--- PASS: TestParallelBufferVarOut8 (6.69s)
 === RUN   TestParallelBufferVarOut16
---- PASS: TestParallelBufferVarOut16 (10.86s)
+--- PASS: TestParallelBufferVarOut16 (6.84s)
 === RUN   TestParallelBufferVarOut32
---- PASS: TestParallelBufferVarOut32 (10.26s)
+--- PASS: TestParallelBufferVarOut32 (5.08s)
 === RUN   TestParallelBufferVarOut64
---- PASS: TestParallelBufferVarOut64 (10.86s)
-BenchmarkParallelBufferVarOut2-8               1        1432143200 ns/op      133744 B/op         26 allocs/op
-BenchmarkParallelBufferVarOut4-8               2         873587350 ns/op      264696 B/op         39 allocs/op
-BenchmarkParallelBufferVarOut8-8               2         677567750 ns/op      525192 B/op         68 allocs/op
-BenchmarkParallelBufferVarOut16-8              2         593559350 ns/op     1050104 B/op        134 allocs/op
-BenchmarkParallelBufferVarOut32-8              2         584558450 ns/op     2098224 B/op        260 allocs/op
-BenchmarkParallelBufferVarOut64-8              2         865586550 ns/op     4194960 B/op        515 allocs/op
+--- PASS: TestParallelBufferVarOut64 (5.01s)
+BenchmarkParallelBufferVarOut2-4    	       1	4583026466 ns/op	   66048 B/op	      12 allocs/op
+BenchmarkParallelBufferVarOut4-4    	       1	3573125013 ns/op	  131104 B/op	      18 allocs/op
+BenchmarkParallelBufferVarOut8-4    	       1	2216523200 ns/op	  263008 B/op	      36 allocs/op
+BenchmarkParallelBufferVarOut16-4   	       1	2383133349 ns/op	  525648 B/op	      70 allocs/op
+BenchmarkParallelBufferVarOut32-4   	       1	1793297208 ns/op	 1049936 B/op	     134 allocs/op
+BenchmarkParallelBufferVarOut64-4   	       1	1837229377 ns/op	 2098512 B/op	     262 allocs/op
 PASS
-ok      command-line-arguments  79.740s
 ```
 The optimal of amount buffers is between 16 ... 64 in our task.
-Now our algorithm is faster at 12.5/0.6 = 20.8 times
+Now our algorithm is faster at 22.2/1.79 = 12.4 times
 
 # Create preliminary optimization formula
 

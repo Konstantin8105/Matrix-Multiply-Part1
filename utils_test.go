@@ -1,6 +1,8 @@
 package main_test
 
-import "math/rand"
+import (
+	"math/rand"
+)
 
 // getenerateMatrix - generate the matrix for test
 func generateMatrix() (A, B, C [][]float64) {
@@ -32,17 +34,37 @@ func generateMatrix() (A, B, C [][]float64) {
 func isSame(f func(a, b, c *[][]float64)) bool {
 	A, B, C := generateMatrix()
 	f(&A, &B, &C)
+
+	// For avoid waiting of correctnes
+	// of algorithm result
 	n := len(A)
+	goodC := make([][]float64, n)
+	for i := 0; i < n; i++ {
+		goodC[i] = make([]float64, n)
+	}
+	mmParallelBuffer32(&A, &B, &goodC)
 	for i := 0; i < n; i++ {
 		for j := 0; j < n; j++ {
-			sum := 0.0
-			for k := 0; k < n; k++ {
-				sum += A[i][k] * B[k][j]
-			}
-			if sum != C[i][j] {
+			if goodC[i][j] != C[i][j] {
 				return false
 			}
 		}
 	}
+
+	// First checking algorithm
+	/*
+		n := len(A)
+		for i := 0; i < n; i++ {
+			for j := 0; j < n; j++ {
+				sum := 0.0
+				for k := 0; k < n; k++ {
+					sum += A[i][k] * B[k][j]
+				}
+				if sum != C[i][j] {
+					return false
+				}
+			}
+		}
+	*/
 	return true
 }
