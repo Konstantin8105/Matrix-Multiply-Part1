@@ -470,13 +470,103 @@ BenchmarkParallelBuffer64-8            1        1899000000 ns/op     4194832 B/o
 PASS
 ok      command-line-arguments  84.782s
 ```
+Like we see, we will have the optimal solution between 4 and 64 buffers. May be [42](https://en.wikipedia.org/wiki/The_Hitchhiker%27s_Guide_to_the_Galaxy) - we have to continue the analyzing.
 
 Now our algorithm is faster at 12.5/1.72 = 7.3 times
+
+# Try minimaze inialiaze variable
+
+At this part of article, we try to optimize algorithm.
+We add new variable for summ in step for calculate the matrix [C] and first initialize outside of loop.
+Look on code on parallel algoritm with 2 buffers and some initialization outside of loop.
+
+```go
+// mmParallelBufferVarOut2 - with 2 buffers
+func mmParallelBufferVarOut2(A, B, C *[][]float64) {
+	n := len(*A)
+	// Found amount allowable parallelism
+	threads := runtime.GOMAXPROCS(0)
+	if threads > runtime.NumCPU() {
+		threads = runtime.NumCPU()
+	}
+	// Create workgroup
+	var wg sync.WaitGroup
+	// Run calculation in goroutines
+	for t := 0; t < threads; t++ {
+		// Add one goroutine in workgroup
+		wg.Add(1)
+		// The value "init" is a number of thread
+		// that created for offset of loop
+		go func(init int) {
+			// Change waitgroup after work done
+			defer wg.Done()
+			// Inialize addition variables
+			var sum0, sum1 float64 // <---- Mark
+			// Create buffers
+			amountBuffers := 2
+			buffer0 := make([]float64, n, n)
+			buffer1 := make([]float64, n, n)
+			// Calculate amount of calculation part
+			// for that goroutine
+			amountParts := n / amountBuffers
+			for i := init; i < amountParts; i += threads {
+				for j := 0; j < n; j++ {
+					// Put in buffer row of matrix [A]
+					buffer0[j] = (*A)[i*amountBuffers+0][j]
+					buffer1[j] = (*A)[i*amountBuffers+1][j]
+				}
+				for j := 0; j < n; j++ {
+					sum0 = 0.0 // <---- Mark
+					sum1 = 0.0 // <---- Mark
+					for k := 0; k < n; k++ {
+						sum0 += buffer0[k] * (*B)[k][j] // <---- Mark
+						sum1 += buffer1[k] * (*B)[k][j] // <---- Mark
+					}
+					(*C)[i*amountBuffers+0][j] = sum0 // <---- Mark
+					(*C)[i*amountBuffers+1][j] = sum1 // <---- Mark
+				}
+			}
+		}(t)
+	}
+	wg.Wait()
+}
+```
+Changed 7 lines of code and added comment : `<---- Mark`
+
+Look on results:
+```command line
+Z:\GoPath\src\github.com\Konstantin8105\MatrixMultiply>go test -v -bench=. -benchmem  bufferParallelVariableOutside_test.go utils_test.go
+=== RUN   TestParallelBufferVarOut2
+--- PASS: TestParallelBufferVarOut2 (13.12s)
+=== RUN   TestParallelBufferVarOut4
+--- PASS: TestParallelBufferVarOut4 (11.10s)
+=== RUN   TestParallelBufferVarOut8
+--- PASS: TestParallelBufferVarOut8 (10.63s)
+=== RUN   TestParallelBufferVarOut16
+--- PASS: TestParallelBufferVarOut16 (10.86s)
+=== RUN   TestParallelBufferVarOut32
+--- PASS: TestParallelBufferVarOut32 (10.26s)
+=== RUN   TestParallelBufferVarOut64
+--- PASS: TestParallelBufferVarOut64 (10.86s)
+BenchmarkParallelBufferVarOut2-8               1        1432143200 ns/op      133744 B/op         26 allocs/op
+BenchmarkParallelBufferVarOut4-8               2         873587350 ns/op      264696 B/op         39 allocs/op
+BenchmarkParallelBufferVarOut8-8               2         677567750 ns/op      525192 B/op         68 allocs/op
+BenchmarkParallelBufferVarOut16-8              2         593559350 ns/op     1050104 B/op        134 allocs/op
+BenchmarkParallelBufferVarOut32-8              2         584558450 ns/op     2098224 B/op        260 allocs/op
+BenchmarkParallelBufferVarOut64-8              2         865586550 ns/op     4194960 B/op        515 allocs/op
+PASS
+ok      command-line-arguments  79.740s
+```
+
+Now our algorithm is faster at 12.5/0.6 = 20.8 times
+
+# Create preliminary optimization formula
 
 ------
 #TODO
 
+add note about allocation - don't affaid)
 add more tests
 add test for one single matrix
 add tests for deep matrix
-
+add more visual graph
