@@ -1,7 +1,7 @@
 # Matrix Multiplication
 
 At the base of article is performance research of matrix multiplication.
-Let`s take a few input data:
+Let's take a few input data:
 
 - Multiplication matrix: [A]*[B] = [C], where [A], [B], [C] - square matrix
 - Size of each matrix is 1024 x 1024
@@ -66,7 +66,7 @@ public class Matrix implements ... {
 Comment - at the future, I will show the reason - Why buffer of column for matrix B is good? But we create the better.
 
 Code in project [go.matrix](https://github.com/skelterjohn/go.matrix/blob/daa59528eefd43623a4c8e36373a86f9eef870a2/arithmetic.go)
-```golang
+```go
 func ParallelProduct(A, B MatrixRO) (C *DenseMatrix) {
 	...
 	C = Zeros(A.Rows(), B.Cols())
@@ -107,14 +107,14 @@ func ParallelProduct(A, B MatrixRO) (C *DenseMatrix) {
 ```
 Comments:
 - Strange, but it is true, amount of threads put in code. The best way to use actual processors on user computer
-- We don`t see buffer
+- We don't see buffer
 - We see using array for intermadiante results. Now, it is not clear - it is good or not. We will see.
 
 # Stop theory, more practic, more benchmarks
 
 Now, we are ready for experiments.
 At the first time, we look on first benchmark in detail for understood each line of code.
-```golang
+```go
 func BenchmarkSimple(b *testing.B) {
 	// Stop the timer for avoid add time of generate matrix
 	b.StopTimer()
@@ -156,14 +156,14 @@ Flags:
 
 Our first benchmark result:
 ```command line
-BenchmarkSimple-4   	       5	22155569004ns/op	       0 B/op	       0 allocs/op
+BenchmarkSimple-4   	       5	15305107558 ns/op	       0 B/op	       0 allocs/op
 ```
-So, we see next: our test executed 5 times and ~22.1 sec for each multiplication and we don't allocation addition memory.
+So, we see next: our test executed 5 times and ~15.3 sec for each multiplication and we don't allocation addition memory.
 
 For future algorithm optimization, we have to refactoring the code for avoid mistake and minimaze the time for benchmark research.
 
 Firstly, we create a simple(slow) check function for compare results all new algorithms. 
-```golang
+```go
 // isSame - function for check algorithm of matrix multiplication
 // compare result with simple and slow classic algortithm 
 func isSame(f func(a, b, c *[][]float64)) bool {
@@ -185,7 +185,7 @@ func isSame(f func(a, b, c *[][]float64)) bool {
 }
 ```
 Put our "simple, first" algorithm inside function outside of test. Like that:
-```golang
+```go
 func mmSimple(A, B, C *[][]float64) {
 	n := len(*A)
 	for i := 0; i < n; i++ {
@@ -201,7 +201,7 @@ We see the simple, clear function with 3 input, output matrix.
 Prefix of function name `mm` mean - "Matrix Multiplication".
 
 Our test look very beatiful:
-```golang
+```go
 func TestSimple(t *testing.T) {
 	if !isSame(mmSimple) {
 		t.Errorf("Algorithm is not correct")
@@ -209,7 +209,7 @@ func TestSimple(t *testing.T) {
 }
 ```
 Our benchmark look is same clear:
-```golang
+```go
 func BenchmarkSimple(b *testing.B) {
 	// Stop the timer for avoid add time of generate matrix
 	b.StopTimer()
@@ -244,7 +244,7 @@ What we see in function `mmSimple` for optimization?
 > garantee putting memory in CPU cache.
 
 So, our code is:
-```golang
+```go
 // mmBuffer1 - added one buffer
 func mmBuffer1(A, B, C *[][]float64) {
 	n := len(*A)
@@ -279,7 +279,7 @@ PASS
 ok  	github.com/Konstantin8105/MatrixMultiply	522.489s
 ```
 What we see?
-1.	Both algorithm is good(haven`t bug)
+1.	Both algorithm is good(haven't bug)
 2.	Algorithm with buffer little bit faster at 22.1/18.7 = 1.18 times (18%)
 
 Like we see in example of JAMA library, the putting buffer is good way.
@@ -289,8 +289,7 @@ But it is not a clear:
 * Can we create the algorithm more faster?
 * Can we create a parallel algorithm?
 
-Let`s start to create new experiments.
-
+Let's start to create new experiments.
 
 
 
