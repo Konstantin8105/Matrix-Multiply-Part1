@@ -636,9 +636,27 @@ We are sure: we don't know the location of data - inside CPU memory or inside RA
 We have:
 
 ```calculation
-AB * SF     - memory for variables "summ"
-AB * SF * n - memory for buffers
-AB * SF * n - memory for
+TH * AB * SF     - memory for variables "summ"
+TH * AB * SF * n - memory for buffers (vectors of matrix [A])
+TH * AB * SF * n - memory for vectors of matrix [B]
+TH * AB * SF     - memory for values of matrix [C]
+------------------- 
+Summary :
+
+MEMORY := TH * AB * SF * ( 2 + 2 * n)
+```
+
+In our case :
+```calculation
+TH     = 4 processors
+SF     = 64 bit = 8 bait
+n      = 2048 elements
+MEMORY = 3 MB = 3 000 000 bait
+
+Optimal size of buffers:
+              MEMORY
+AB = -------------------------- = 22.8 ~= 23 buffers
+       TH * SF * ( 2 + 2 * n )
 ```
 
 
@@ -656,3 +674,5 @@ add more visual graph
 don't create a buffers - transponse A
 add code link in text
 add https://asciinema.org/ for benchmark
+
+worker pool for calculate, prepare the buffers
