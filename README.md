@@ -92,7 +92,7 @@ func ParallelProduct(A, B MatrixRO) (C *DenseMatrix) {
 		}
 	}
 
-	threads := 2                                      // Is it looks strange, because I can more then 2 processors
+	threads := 2                                      // Is it looks strange, because I have more then 2 processors
 	for i := 0; i < threads; i++ {
 		go dotRowCol()
 	}
@@ -445,7 +445,7 @@ func mmParallelBuffer2(A, B, C *[][]float64) {
 }
 ```
 
-If you feel the pain of waiting the results of benchmarks before, then now it is lost, because now if mush better performance. Let's look on results of parallel algorithm with buffers.
+If you feel the pain of waiting the results of benchmarks before, then now it is lost, because now it much better performance. Let's look on results of parallel algorithm with buffers.
 
 ```command line
 go test -v -bench=. -benchmem  bufferParallel_test.go utils_test.go
@@ -562,24 +562,79 @@ Now our algorithm is faster at 12.5/0.6 = 20.8 times
 
 # Create preliminary optimization formula
 
-Let's amount all results and create some preliiminary model of calculation.
+Let's amount all results and create some preliminary model of calculation.
+
+Simple image of architecture:
 ```ascii picture
 +---------------------------+  +-------------------+
 | CPU                       |  | RAM               |
-|  +--------+  +---------+  |  | memory            |
+|  +--------+  +---------+  |==| memory            |
 |  |  Core  |==| CPU     |  |  |                   |
-|  +--------+  | memory  |  |  |                   |
+|  +--------+  | memory  |  |==|                   |
 |  +--------+  |         |  |  |                   |
+|  |  Core  |==|         |  |==|                   |
+|  +--------+  |         |  |  |                   |
+|  +--------+  |         |  |==|                   |
 |  |  Core  |==|         |  |  |                   |
+|  +--------+  |         |  |==|                   |
 |  +--------+  |         |  |  |                   |
-|  +--------+  |         |  |  |                   |
-|  |  Core  |==|         |  |  |                   |
-|  +--------+  |         |  |  |                   |
-|  +--------+  |         |  |  |                   |
-|  |  Core  |==|         |  |  |                   |
+|  |  Core  |==|         |  |==|                   |
 |  +--------+  +---------+  |  |                   |
 +---------------------------+  +-------------------+
+```
 
+Calculation amount of memory inside each goroutine:
+
+```go
+0.		go func(init int) {
+1.			// Change waitgroup after work done
+2.			defer wg.Done()
+3.			// Inialize addition variables
+4.			var sum0, sum1 float64
+5.			// Create buffers
+6.			amountBuffers := 2
+7.			buffer0 := make([]float64, n, n)
+8.			buffer1 := make([]float64, n, n)
+9.			// Calculate amount of calculation part
+10.			// for that goroutine
+11.			amountParts := n / amountBuffers
+12.			for i := init; i < amountParts; i += threads {
+13.				for j := 0; j < n; j++ {
+14.					// Put in buffer row of matrix [A]
+15.					buffer0[j] = (*A)[i*amountBuffers+0][j]
+16.					buffer1[j] = (*A)[i*amountBuffers+1][j]
+17.				}
+18.				for j := 0; j < n; j++ {
+19.					sum0 = 0.0
+20.					sum1 = 0.0
+21.					for k := 0; k < n; k++ {
+22.						sum0 += buffer0[k] * (*B)[k][j]
+23.						sum1 += buffer1[k] * (*B)[k][j]
+24.					}
+25.					(*C)[i*amountBuffers+0][j] = sum0
+26.					(*C)[i*amountBuffers+1][j] = sum1
+27.				}
+28.			}
+29.		}(t)
+```
+
+Variables for calculation:
+
+```variables
+n  - amount elements in each column or rows in matrix
+SF - size of float64
+AB - amount of buffers
+TH - amount of threads
+```
+
+We are sure: we don't know the location of data - inside CPU memory or inside RAM.
+
+We have:
+
+```calculation
+AB * SF     - memory for variables "summ"
+AB * SF * n - memory for buffers
+AB * SF * n - memory for 
 ```
 
 
