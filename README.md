@@ -651,7 +651,7 @@ In our case :
 TH     = 4 processors
 SF     = 64 bit = 8 bait
 n      = 2048 elements
-MEMORY = 3 MB = 3 000 000 bait
+MEMORY = 3 MB ~= 3 000 000 bait
 
 Optimal size of buffers:
               MEMORY
@@ -659,8 +659,12 @@ AB = -------------------------- = 22.8 ~= 23 buffers
        TH * SF * ( 2 + 2 * n )
 ```
 
+In according to experiments, the best way - take little bit more buffer, then less
 
-# Rules
+
+# Results
+
+
 
 ------
 #TODO
