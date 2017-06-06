@@ -160,7 +160,7 @@ BenchmarkSimple-4   	       5	15305107558 ns/op	       0 B/op	       0 allocs/op
 ```
 So, we see next: our test executed 5 times and ~15.3 sec for each multiplication and we don't allocation addition memory.
 
-For future algorithm optimization, we have to refactoring the code for avoid mistake and minimaze the time for benchmark research.
+For future algorithm optimization, we have to refactoring the code for avoid mistake and minimaze the time for benchmark research. **But** the cost of that refactoring is each bechmark will be little bit slow, in our case it is now so important.
 
 Firstly, we create a simple(slow) check function for compare results all new algorithms. 
 ```go
@@ -176,6 +176,9 @@ func isSame(f func(a, b, c *[][]float64)) bool {
 			for k := 0; k < n; k++ {
 				sum += A[i][k] * B[k][j]
 			}
+ 			// For our case it is acceptable,
+			// but by default we cannot compare
+			// two float values directly
 			if sum != C[i][j] {
 				return false
 			}
