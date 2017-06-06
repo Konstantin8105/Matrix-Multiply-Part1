@@ -557,7 +557,12 @@ Now our algorithm is faster at 22.2/1.79 = 12.4 times
 # Result graph
 
 ![Graph 1](https://github.com/Konstantin8105/MatrixMultiply/blob/master/images/1.png)
+
+In graphs, less is better.
+
 ![Graph 2](https://github.com/Konstantin8105/MatrixMultiply/blob/master/images/2.png)
+
+In graphs, less is better.
 
 # Create preliminary optimization formula
 
@@ -647,3 +652,7 @@ add more tests
 add test for one single matrix
 add tests for deep matrix
 add more visual graph
+
+don't create a buffers - transponse A
+add code link in text
+add https://asciinema.org/ for benchmark
