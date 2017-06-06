@@ -386,17 +386,92 @@ BenchmarkBuffer64-8                    1        6637663700 ns/op      524288 B/o
 PASS
 ok      github.com/Konstantin8105/MatrixMultiply        225.049s
 ```
-Like we see, we will have the optimal solution between 4 and 64 buffers. May be [42](https://en.wikipedia.org/wiki/The_Hitchhiker%27s_Guide_to_the_Galaxy).
+Like we see, we will have the optimal solution between 4 and 64 buffers. May be [42](https://en.wikipedia.org/wiki/The_Hitchhiker%27s_Guide_to_the_Galaxy) - we have to continue the analyzing.
 
 And now our algorithm is faster at 12.5/6.03 = 2.07 times
 
 We still use only one core of processor. So, let's create a parallel algorithm.
 
-# More buffers + more cores = more faster.
+# Speed := moreBuffers + moreCores
 
+In that article, we use programming Go with incredible simple to create parallel/concurrency.
+Just, `go`.
 
+Just for you, look on parallel version of algorithm with addition comments for clear undestood.
 
+```go
+// mmParallelBuffer2 - with 2 buffers
+func mmParallelBuffer2(A, B, C *[][]float64) {
+	n := len(*A)
+	// Found amount allowable parallelism
+	threads := runtime.GOMAXPROCS(0)
+	if threads > runtime.NumCPU() {
+		threads = runtime.NumCPU()
+	}
+	// Create workgroup
+	var wg sync.WaitGroup
+	// Run calculation in goroutines
+	for t := 0; t < threads; t++ {
+		// Add one goroutine in workgroup
+		wg.Add(1)
+		// The value "init" is a number of thread
+		// that created for offset of loop
+		go func(init int) {
+			// Change waitgroup after work done
+			defer wg.Done()
+			// Create buffers
+			amountBuffers := 2
+			buffer0 := make([]float64, n, n)
+			buffer1 := make([]float64, n, n)
+			// Calculate amount of calculation part
+			// for that goroutine
+			amountParts := n / amountBuffers
+			for i := init; i < amountParts; i += threads {
+				for j := 0; j < n; j++ {
+					// Put in buffer row of matrix [A]
+					buffer0[j] = (*A)[i*amountBuffers+0][j]
+					buffer1[j] = (*A)[i*amountBuffers+1][j]
+				}
+				for j := 0; j < n; j++ {
+					for k := 0; k < n; k++ {
+						(*C)[i*amountBuffers+0][j] += buffer0[k] * (*B)[k][j]
+						(*C)[i*amountBuffers+1][j] += buffer1[k] * (*B)[k][j]
+					}
+				}
+			}
+		}(t)
+	}
+	wg.Wait()
+}
+```
 
+If you feel the pain of waiting the results of benchmarks before, then now it is lost, because now if mush better performance. Let's look on results of parallel algorithm with buffers.
+
+```command line
+go test -v -bench=. -benchmem  bufferParallel_test.go utils_test.go
+=== RUN   TestParallelBuffer2
+--- PASS: TestParallelBuffer2 (12.25s)
+=== RUN   TestParallelBuffer4
+--- PASS: TestParallelBuffer4 (12.26s)
+=== RUN   TestParallelBuffer8
+--- PASS: TestParallelBuffer8 (12.03s)
+=== RUN   TestParallelBuffer16
+--- PASS: TestParallelBuffer16 (11.94s)
+=== RUN   TestParallelBuffer32
+--- PASS: TestParallelBuffer32 (11.78s)
+=== RUN   TestParallelBuffer64
+--- PASS: TestParallelBuffer64 (12.53s)
+BenchmarkParallelBuffer2-8             1        2156000000 ns/op      133328 B/op         25 allocs/op
+BenchmarkParallelBuffer4-8             1        2145000000 ns/op      264672 B/op         40 allocs/op
+BenchmarkParallelBuffer8-8             1        1778000000 ns/op      528944 B/op         75 allocs/op
+BenchmarkParallelBuffer16-8            1        1725000000 ns/op     1051184 B/op        137 allocs/op
+BenchmarkParallelBuffer32-8            1        1722000000 ns/op     2100176 B/op        266 allocs/op
+BenchmarkParallelBuffer64-8            1        1899000000 ns/op     4194832 B/op        516 allocs/op
+PASS
+ok      command-line-arguments  84.782s
+```
+
+Now our algorithm is faster at 12.5/1.72 = 7.3 times
 
 ------
 #TODO
