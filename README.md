@@ -162,10 +162,10 @@ So, we see next: our test executed 5 times and ~15.3 sec for each multiplication
 
 For future algorithm optimization, we have to refactoring the code for avoid mistake and minimaze the time for benchmark research. **But** the cost of that refactoring is each bechmark will be little bit slow, in our case it is now so important.
 
-Firstly, we create a simple(slow) check function for compare results all new algorithms. 
+Firstly, we create a simple(slow) check function for compare results all new algorithms.
 ```go
 // isSame - function for check algorithm of matrix multiplication
-// compare result with simple and slow classic algortithm 
+// compare result with simple and slow classic algortithm
 func isSame(f func(a, b, c *[][]float64)) bool {
 	A, B, C := generateMatrix()
 	f(&A, &B, &C)
@@ -200,7 +200,7 @@ func mmSimple(A, B, C *[][]float64) {
 	}
 }
 ```
-We see the simple, clear function with 3 input, output matrix. 
+We see the simple, clear function with 3 input, output matrix.
 Prefix of function name `mm` mean - "Matrix Multiplication".
 
 Our test look very beatiful:
@@ -239,11 +239,11 @@ What we see in function `mmSimple` for optimization?
 >
 > The reason: we prepare memory and if all is Ok, we will
 > put memory in CPU cache.
-> One more attention: if all out data for calculation inside 
-> CPU cache, then that calculation will be calculated 
+> One more attention: if all out data for calculation inside
+> CPU cache, then that calculation will be calculated
 > fast, because speed of memory is more fast then RAM.
 >
-> At the next time, we will see the way for preliminary 
+> At the next time, we will see the way for preliminary
 > garantee putting memory in CPU cache.
 
 So, our code is:
@@ -554,6 +554,11 @@ PASS
 The optimal of amount buffers is between 16 ... 64 in our task.
 Now our algorithm is faster at 22.2/1.79 = 12.4 times
 
+# Result graph
+
+![Graph 1](https://github.com/Konstantin8105/MatrixMultiply/blob/master/images/1.png)
+![Graph 2](https://github.com/Konstantin8105/MatrixMultiply/blob/master/images/2.png)
+
 # Create preliminary optimization formula
 
 Let's amount all results and create some preliminary model of calculation.
@@ -628,7 +633,7 @@ We have:
 ```calculation
 AB * SF     - memory for variables "summ"
 AB * SF * n - memory for buffers
-AB * SF * n - memory for 
+AB * SF * n - memory for
 ```
 
 
