@@ -114,6 +114,7 @@ Comments:
 
 Now, we are ready for experiments.
 At the first time, we look on first benchmark in detail for understood each line of code.
+See [code](https://github.com/Konstantin8105/MatrixMultiply/blob/master/simple_test.go)
 ```go
 func BenchmarkSimple(b *testing.B) {
 	// Stop the timer for avoid add time of generate matrix
@@ -162,7 +163,7 @@ So, we see next: our test executed 5 times and ~15.3 sec for each multiplication
 
 For future algorithm optimization, we have to refactoring the code for avoid mistake and minimaze the time for benchmark research. **But** the cost of that refactoring is each bechmark will be little bit slow, in our case it is now so important.
 
-Firstly, we create a simple(slow) check function for compare results all new algorithms.
+Firstly, we create a simple(slow) check function for compare results all new algorithms. See [code.](https://github.com/Konstantin8105/MatrixMultiply/blob/master/utils_test.go)
 ```go
 // isSame - function for check algorithm of matrix multiplication
 // compare result with simple and slow classic algortithm
@@ -298,6 +299,7 @@ Let's start to create new experiments.
 
 Create a multiplication matrix algorithm with 2 buffers.
 We can that algorithm, only if size of matrix is multiple by 2.
+See [code.](https://github.com/Konstantin8105/MatrixMultiply/blob/master/buffer_test.go)
 ```go
 // mmBuffer2 - added two buffer
 func mmBuffer2(A, B, C *[][]float64) {
@@ -394,7 +396,7 @@ We still use only one core of processor. So, let's create a parallel algorithm.
 In that article, we use programming Go with incredible simple to create parallel/concurrency.
 Just, `go`.
 
-Just for you, look on parallel version of algorithm with addition comments for clear undestood.
+Just for you, look on parallel version of algorithm with addition comments for clear undestood. See [code.](https://github.com/Konstantin8105/MatrixMultiply/blob/master/bufferParallel_test.go)
 
 ```go
 // mmParallelBuffer2 - with 2 buffers
@@ -475,6 +477,7 @@ Now our algorithm is faster at 22.2/4.27 = 5.22 times
 At this part of article, we try to optimize algorithm.
 We add new variable for summ in step for calculate the matrix [C] and first initialize outside of loop.
 Look on code on parallel algoritm with 2 buffers and some initialization outside of loop.
+See [code.](https://github.com/Konstantin8105/MatrixMultiply/blob/master/bufferParallelVariableOutside_test.go)
 
 ```go
 // mmParallelBufferVarOut2 - with 2 buffers
@@ -689,19 +692,13 @@ For founding the optimal solution, we use used next:
 * Try initialize the variables outside the loop
 * Try to use physical limits of hardware(cpu, ram)
 
-The result, we create the algorithm at 12.4 times fast then naive algorithm.
+```result
+Final test:
 
-------
-#TODO
+BenchmarkFinalSimple-4                   	       2	16780972374 ns/op	       0 B/op	       0 allocs/op
+BenchmarkFinalParallelBufferVarOut64-4   	      20	1873215027 ns/op	 2097620 B/op	     259 allocs/op
+PASS
+ok  	command-line-arguments	97.744s
+```
 
-add note about allocation - don't affaid)
-add more tests
-add test for one single matrix
-add tests for deep matrix
-add more visual graph
-
-don't create a buffers - transponse A
-add code link in text
-add https://asciinema.org/ for benchmark
-
-worker pool for calculate, prepare the buffers
+The result, we create the algorithm at 9 times fast then naive algorithm.

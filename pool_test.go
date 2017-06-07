@@ -50,7 +50,7 @@ func newPool(size int) *pool {
 		threads = runtime.NumCPU()
 	}
 	return &pool{
-		ch:   make(chan *task, threads*2), //+1),
+		ch:   make(chan *task, threads),
 		size: size,
 	}
 }
@@ -97,7 +97,7 @@ func mmPool(A, B, C *[][]float64) {
 		i, j int
 		v    float64
 	}
-	messageChan := make(chan message, threads*1000)
+	messageChan := make(chan message, n*threads)
 
 	go func() {
 		for m := range messageChan {
@@ -137,7 +137,6 @@ func mmPool(A, B, C *[][]float64) {
 
 	// Create workgroup
 	var wg2 sync.WaitGroup
-	threads *= 2
 	for t := 0; t < threads; t++ {
 		wg2.Add(1)
 		go func(t int) {
