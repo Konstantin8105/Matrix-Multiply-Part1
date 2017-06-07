@@ -6,45 +6,6 @@ import (
 	"testing"
 )
 
-/*
-func TestParallelBuffer1(t *testing.T) {
-	if !isSame(mmParallelBuffer1) {
-		t.Errorf("Algorithm is not correct")
-	}
-}
-
-func BenchmarkParallelBuffer1(b *testing.B) {
-	// Stop the timer for avoid add time of generate matrix
-	b.StopTimer()
-	A, B, C := generateMatrix()
-	// Now, we are ready for start timer our benchmark
-	b.StartTimer()
-	// We cannot control for amount of benchmark test,
-	// but it is not important
-	for t := 0; t < b.N; t++ {
-		// Start of algorithm
-		mmParallelBuffer1(&A, &B, &C)
-		// Finish of algorithm
-	}
-}
-
-// mmParallelBuffer1 - added one buffer
-func mmParallelBuffer1(A, B, C *[][]float64) {
-	n := len(*A)
-	buffer := make([]float64, n, n) // Create buffer
-	for i := 0; i < n; i++ {
-		for j := 0; j < n; j++ {
-			buffer[j] = (*A)[i][j] // Put in buffer row of matrix [A]
-		}
-		for j := 0; j < n; j++ {
-			for k := 0; k < n; k++ {
-				(*C)[i][j] += buffer[k] * (*B)[k][j]
-			}
-		}
-	}
-}
-*/
-
 func TestParallelBuffer2(t *testing.T) {
 	if !isSame(mmParallelBuffer2) {
 		t.Errorf("Algorithm is not correct")
