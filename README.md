@@ -649,22 +649,47 @@ MEMORY := TH * AB * SF * ( 2 + 2 * n)
 In our case :
 ```calculation
 TH     = 4 processors
-SF     = 64 bit = 8 bait
+SF     = 64 bit = 8 bytes
 n      = 2048 elements
-MEMORY = 3 MB ~= 3 000 000 bait
+MEMORY = 3 MB ~= 3 000 000 bytes
 
 Optimal size of buffers:
-              MEMORY
-AB = -------------------------- = 22.8 ~= 23 buffers
-       TH * SF * ( 2 + 2 * n )
+              MEMORY                  3 000 000
+AB = -------------------------- = ----------------------- = 22.8 ~= 23 buffers
+       TH * SF * ( 2 + 2 * n )      4 * 8 * (2 + 2*2048)
 ```
 
-In according to experiments, the best way - take little bit more buffer, then less
+We can check our formula on another [processor](http://ark.intel.com/products/65730/Intel-Xeon-Processor-E3-1240-v2-8M-Cache-3_40-GHz) with cpu cache 8MB and 8 processors.
+```results
+BenchmarkParallelBufferVarOut2-8               1        1510086400 ns/op      131104 B/op         18 allocs/op
+BenchmarkParallelBufferVarOut4-8               2         858049050 ns/op      263256 B/op         37 allocs/op
+BenchmarkParallelBufferVarOut8-8               2         566032400 ns/op      524320 B/op         66 allocs/op
+BenchmarkParallelBufferVarOut16-8              2         606034700 ns/op     1049064 B/op        131 allocs/op
+BenchmarkParallelBufferVarOut32-8              2         727041550 ns/op     2097288 B/op        259 allocs/op
+BenchmarkParallelBufferVarOut64-8              2         730041750 ns/op     4195832 B/op        518 allocs/op
 
+Optimal size of buffers:
+              MEMORY                   8 000 000
+AB = -------------------------- = ---------------------- = 30.5 ~= 31 buffers
+       TH * SF * ( 2 + 2 * n )     8 * 8 * (2 + 2*2048)
+```
+
+Like we see on that 2 examples, formula is preliminary, because we still have 2 problems:
+1. Processors can calculate faster then memory prepare the data.
+2. Memory can prepare data faster then processor can calculate.
+
+So, we have to create a new algorithm without that problems. But at the first, little bit about our results.
 
 # Results
 
+For founding the optimal solution, we use used next:
+* More benchmarks, show we way for optimal solution
+* Parallel algorithm is better, then one core algorithm
+* Feel free to use buffers, but not too much
+* Try initialize the variables outside the loop
+* Try to use physical limits of hardware(cpu, ram)
 
+The result, we create the algorithm at 12.4 times fast then naive algorithm.
 
 ------
 #TODO
