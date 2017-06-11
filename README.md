@@ -702,3 +702,96 @@ ok  	command-line-arguments	97.744s
 ```
 
 The result, we create the algorithm at 9 times fast then naive algorithm.
+
+# One more thinks
+
+We used the 2d slises for matrix, but it is "math" way, but not "programmer" way. 
+We will use 1d slise for matrix and look at the benchmarks.
+
+Let's look on code:
+
+```golang
+// mmParallelBufferVarOutSingleSlise2 - with 2 buffers,
+// parallel model of calculation, internal initialization of
+// variables, 1d slises for matrix
+func mmParallelBufferVarOutSingleSlise2(A, B, C *[]float64) {
+	n := int(math.Sqrt(float64(len(*A))))
+	// Found amount allowable parallelism
+	threads := runtime.GOMAXPROCS(0)
+	if threads > runtime.NumCPU() {
+		threads = runtime.NumCPU()
+	}
+	// Create workgroup
+	var wg sync.WaitGroup
+	// Run calculation in goroutines
+	for t := 0; t < threads; t++ {
+		// Add one goroutine in workgroup
+		wg.Add(1)
+		// The value "init" is a number of thread
+		// that created for offset of loop
+		go func(init int) {
+			// Change waitgroup after work done
+			defer wg.Done()
+			// Inialize addition variables
+			var sum0, sum1 float64
+			// Create buffers
+			amountBuffers := 2
+			buffer0 := make([]float64, n, n)
+			buffer1 := make([]float64, n, n)
+			// Calculate amount of calculation part
+			// for that goroutine
+			amountParts := n / amountBuffers
+			for i := init; i < amountParts; i += threads {
+				for j := 0; j < n; j++ {
+					// Put in buffer row of matrix [A]
+					buffer0[j] = (*A)[(i*amountBuffers+0)+j*n]
+					buffer1[j] = (*A)[(i*amountBuffers+1)+j*n]
+				}
+				for j := 0; j < n; j++ {
+					sum0 = 0.0
+					sum1 = 0.0
+					// Create a pointer on matrix [B]
+					b := (*B)[j*n : j*n+n] // <---- Mark
+					for k := 0; k < n; k++ {
+						sum0 += buffer0[k] * b[k] // <---- Mark
+						sum1 += buffer1[k] * b[k] // <---- Mark
+					}
+					(*C)[(i*amountBuffers+0)+j*n] = sum0
+					(*C)[(i*amountBuffers+1)+j*n] = sum1
+				}
+			}
+		}(t)
+	}
+	wg.Wait()
+}
+```
+
+Benchmaks looks better.
+```command line
+=== RUN   TestParallelBufferVarOutSingleSlise2
+--- PASS: TestParallelBufferVarOutSingleSlise2 (24.45s)
+=== RUN   TestParallelBufferVarOutSingleSlise4
+--- PASS: TestParallelBufferVarOutSingleSlise4 (19.66s)
+=== RUN   TestParallelBufferVarOutSingleSlise8
+--- PASS: TestParallelBufferVarOutSingleSlise8 (19.00s)
+=== RUN   TestParallelBufferVarOutSingleSlise16
+--- PASS: TestParallelBufferVarOutSingleSlise16 (23.53s)
+=== RUN   TestParallelBufferVarOutSingleSlise32
+--- PASS: TestParallelBufferVarOutSingleSlise32 (25.08s)
+=== RUN   TestParallelBufferVarOutSingleSlise64
+--- PASS: TestParallelBufferVarOutSingleSlise64 (25.45s)
+BenchmarkParallelBufferVarOutSingleSlise2-4    	       2	 658187971 ns/op   66192 B/op	      11 allocs/op
+BenchmarkParallelBufferVarOutSingleSlise4-4    	       3	 428555125 ns/op  131856 B/op	      19 allocs/op
+BenchmarkParallelBufferVarOutSingleSlise8-4    	       2	 664934629 ns/op  262176 B/op	      34 allocs/op
+BenchmarkParallelBufferVarOutSingleSlise16-4   	       2	 887473232 ns/op  524320 B/op	      66 allocs/op
+BenchmarkParallelBufferVarOutSingleSlise32-4   	       1	1066942567 ns/op 1048608 B/op	     130 allocs/op
+BenchmarkParallelBufferVarOutSingleSlise64-4   	       1	1745351979 ns/op 2097600 B/op	     259 allocs/op
+PASS
+ok  	command-line-arguments	149.431s
+```
+
+![Graph 3](https://github.com/Konstantin8105/MatrixMultiply/blob/master/images/3.png)
+
+In graphs, less is better.
+
+The result, we create the algorithm at 16.7/0.43 = 38.8 times fast then naive algorithm.
