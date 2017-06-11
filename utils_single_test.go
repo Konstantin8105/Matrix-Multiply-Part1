@@ -44,12 +44,15 @@ func isSameSingle(f func(a, b, c *[]float64)) bool {
 }
 
 func validAlgorithmSingle(A, B, C *[]float64) {
-	n := int(math.Sqrt(float64(len(*A))))
-	for i := 0; i < n; i++ {
-		for j := 0; j < n; j++ {
-			for k := 0; k < n; k++ {
-				(*C)[i+j*n] += (*A)[i+k*n] * (*B)[k+j*n]
+	/*
+		n := int(math.Sqrt(float64(len(*A))))
+		for i := 0; i < n; i++ {
+			for j := 0; j < n; j++ {
+				for k := 0; k < n; k++ {
+					(*C)[i+j*n] += (*A)[i+k*n] * (*B)[k+j*n]
+				}
 			}
 		}
-	}
+	*/
+	mmParallelBufferVarOutSingleSlise4(A, B, C)
 }

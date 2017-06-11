@@ -707,6 +707,7 @@ The result, we create the algorithm at 9 times fast then naive algorithm.
 
 We used the 2d slises for matrix, but it is "math" way, but not "programmer" way. 
 We will use 1d slise for matrix and look at the benchmarks.
+Also, we can create the pointer for matrix [B].
 
 Let's look on code:
 

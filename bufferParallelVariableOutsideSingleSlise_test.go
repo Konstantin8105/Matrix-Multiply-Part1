@@ -146,10 +146,11 @@ func mmParallelBufferVarOutSingleSlise4(A, B, C *[]float64) {
 					sum03 = 0.0
 					b := (*B)[j*n : j*n+n]
 					for k := 0; k < n; k++ {
-						sum00 += buffer0[k] * b[k] // (*B)[k+j*n]
-						sum01 += buffer1[k] * b[k] // (*B)[k+j*n]
-						sum02 += buffer2[k] * b[k] // (*B)[k+j*n]
-						sum03 += buffer3[k] * b[k] // (*B)[k+j*n]
+						sum00 += buffer0[k] * b[k]
+						sum01 += buffer1[k] * b[k]
+						sum02 += buffer2[k] * b[k]
+						sum03 += buffer3[k] * b[k]
+
 					}
 					(*C)[(i*amountBuffers+0)+j*n] = sum00
 					(*C)[(i*amountBuffers+1)+j*n] = sum01
