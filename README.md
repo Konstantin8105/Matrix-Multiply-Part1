@@ -1,6 +1,6 @@
 # Matrix Multiplication
 
-At the base of article is performance research of matrix multiplication.
+The base of article is the performance research of matrix multiplication.
 Let's take a few input data:
 
 - Multiplication matrix: [A] * [B] = [C], where [A], [B], [C] - square matrix
@@ -24,7 +24,7 @@ Matrix is table of values, for example:
 [ 4 5 ]
 ```
 
-Now, you see the square matrix with 2 rows and 2 columns. Like you understood, values can be any.
+Now, you see the square matrix with 2 rows and 2 columns. As you understood know, values can be any.
 So, a little example for matrix multiplication looks like that:
 
 ```
@@ -63,7 +63,7 @@ public class Matrix implements ... {
    ...
 }
 ```
-Comment - at the future, I will show the reason - Why buffer of column for matrix B is good? But we create the better.
+Comment - at the future, I will show the reason - Why buffer of column for matrix B is good? But we will create the better solution.
 
 Code in project [go.matrix](https://github.com/skelterjohn/go.matrix/blob/daa59528eefd43623a4c8e36373a86f9eef870a2/arithmetic.go)
 ```go
@@ -106,14 +106,14 @@ func ParallelProduct(A, B MatrixRO) (C *DenseMatrix) {
 }
 ```
 Comments:
-- Strange, but it is true, amount of threads put in code. The best way to use actual processors on user computer
+- Strange, but it is true, amount of threads has already put in code. The best way is using actual amount of processors on user computer
 - We don't see buffer
 - We see using array for intermadiante results. Now, it is not clear - it is good or not. We will see.
 
 # Stop theory, more practic, more benchmarks
 
 Now, we are ready for experiments.
-At the first time, we look on first benchmark in detail for understood each line of code.
+At first , we look at the first benchmark in details for understood each line of code.
 See [code](https://github.com/Konstantin8105/MatrixMultiply/blob/master/simple_test.go)
 ```go
 func BenchmarkSimple(b *testing.B) {
@@ -159,7 +159,7 @@ Our first benchmark result:
 ```command line
 BenchmarkSimple-4   	       5	15305107558 ns/op	       0 B/op	       0 allocs/op
 ```
-So, we see next: our test executed 5 times and ~15.3 sec for each multiplication and we don't allocation addition memory.
+So, we see next: our test executed 5 times and ~15.3 sec for each multiplication and we don't allocate addition memory.
 
 For future algorithm optimization, we have to refactoring the code for avoid mistake and minimaze the time for benchmark research. **But** the cost of that refactoring is each bechmark will be little bit slow, in our case it is now so important.
 
