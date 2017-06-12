@@ -781,18 +781,25 @@ Benchmaks looks better.
 --- PASS: TestParallelBufferVarOutSingleSlise32 (25.08s)
 === RUN   TestParallelBufferVarOutSingleSlise64
 --- PASS: TestParallelBufferVarOutSingleSlise64 (25.45s)
-BenchmarkParallelBufferVarOutSingleSlise2-4    	       2	 658187971 ns/op   66192 B/op	      11 allocs/op
-BenchmarkParallelBufferVarOutSingleSlise4-4    	       3	 428555125 ns/op  131856 B/op	      19 allocs/op
-BenchmarkParallelBufferVarOutSingleSlise8-4    	       2	 664934629 ns/op  262176 B/op	      34 allocs/op
-BenchmarkParallelBufferVarOutSingleSlise16-4   	       2	 887473232 ns/op  524320 B/op	      66 allocs/op
-BenchmarkParallelBufferVarOutSingleSlise32-4   	       1	1066942567 ns/op 1048608 B/op	     130 allocs/op
-BenchmarkParallelBufferVarOutSingleSlise64-4   	       1	1745351979 ns/op 2097600 B/op	     259 allocs/op
+BenchmarkParallelBufferVarOutSingleSlise2-2    	      30	 477160620 ns/op	   32865 B/op	       6 allocs/op
+BenchmarkParallelBufferVarOutSingleSlise4-2    	      50	 358383932 ns/op	   65593 B/op	      10 allocs/op
+BenchmarkParallelBufferVarOutSingleSlise8-2    	      30	 466639120 ns/op	  131138 B/op	      18 allocs/op
+BenchmarkParallelBufferVarOutSingleSlise16-2   	      20	 645680765 ns/op	  262168 B/op	      34 allocs/op
+BenchmarkParallelBufferVarOutSingleSlise32-2   	      20	1011585760 ns/op	  524312 B/op	      66 allocs/op
+BenchmarkParallelBufferVarOutSingleSlise64-2   	      10	1245769922 ns/op	 1048601 B/op	     130 allocs/op
 PASS
 ok  	command-line-arguments	149.431s
 ```
 
 ![Graph 3](https://github.com/Konstantin8105/MatrixMultiply/blob/master/images/3.png)
 
-In graphs, less is better.
+In graph, less is better.
 
-The result, we create the algorithm at 16.7/0.43 = 38.8 times fast then naive algorithm.
+```command
+Final results:
+
+BenchmarkFinalSimple-4                             	       1	15956170846 ns/op	       0 B/op	       0 allocs/op
+BenchmarkFinalParallelBufferVarOut64-4             	      10	1817393809 ns/op	 2097553 B/op	     258 allocs/op
+BenchmarkFinalParallelBufferVarOutSingleSlise4-4   	      50	 389655656 ns/op	  131256 B/op	      18 allocs/op
+```
+The result, we create the algorithm at 15.9/0.38 = 40.9 times fast then naive algorithm.
