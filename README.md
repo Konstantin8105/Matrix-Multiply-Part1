@@ -853,4 +853,4 @@ Result:
  time = 1.667474 sec.
 ```
 
-But we compare with one-code algoritm.
+But we compare with one-core algoritm.
